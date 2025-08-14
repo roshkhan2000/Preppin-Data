@@ -1,0 +1,35 @@
+-- Challenge from here: https://preppindata.blogspot.com/2024/01/2024-week-1-prep-airs-flow-card.html
+
+-- PD 2024 Wk1 Output 1
+
+SELECT
+    TO_DATE(SPLIT_PART(flight_details, '//', 1)) AS "DATE",
+    SPLIT_PART(flight_details, '//', 2) AS "FLIGHT_NUMBER",
+    SPLIT_PART(SPLIT_PART(flight_details, '//', 3), '-', 1) AS "FROM",
+    SPLIT_PART(SPLIT_PART(flight_details, '//', 3), '-', 2) AS "TO",
+    SPLIT_PART(flight_details, '//', 4) AS "CLASS",
+    TO_DECIMAL(SPLIT_PART(flight_details, '//', 5)) AS "PRICE",
+    CASE WHEN flow_card = 1 THEN 'Yes' ELSE 'No' END AS "Flow_Card?",
+    BAGS_CHECKED,
+    MEAL_TYPE,
+FROM PD2024_WK01
+WHERE FLOW_CARD = 1
+
+;
+
+-- PD 2024 Wk1 Output 1
+
+SELECT
+    TO_DATE(SPLIT_PART(flight_details, '//', 1)) AS "DATE",
+    SPLIT_PART(flight_details, '//', 2) AS "FLIGHT_NUMBER",
+    SPLIT_PART(SPLIT_PART(flight_details, '//', 3), '-', 1) AS "FROM",
+    SPLIT_PART(SPLIT_PART(flight_details, '//', 3), '-', 2) AS "TO",
+    SPLIT_PART(flight_details, '//', 4) AS "CLASS",
+    TO_DECIMAL(SPLIT_PART(flight_details, '//', 5)) AS "PRICE",
+    CASE WHEN flow_card = 1 THEN 'Yes' ELSE 'No' END AS "Flow_Card?",
+    BAGS_CHECKED,
+    MEAL_TYPE,
+FROM PD2024_WK01
+WHERE FLOW_CARD = 0
+
+;
