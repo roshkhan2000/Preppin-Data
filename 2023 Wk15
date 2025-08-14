@@ -1,0 +1,74 @@
+with not_extras as (
+select
+    to_varchar(X_2),
+    to_varchar(X_3) as "m22", 
+    to_varchar(X_4)as "m23", 
+    to_varchar(X_5)as "m24", 
+    to_varchar(X_6)as "m25", 
+    to_varchar(X_7)as "m26", 
+    to_varchar(X_8)as "m27", 
+    to_varchar(X_9)as "m28", 
+    to_varchar(X_10)as "m29", 
+    to_varchar(X_11)as "m30", 
+    to_varchar(X_12)as "m31", 
+    to_varchar(X_13)as "a1", 
+    to_varchar(X_14)as "a2", 
+    to_varchar(X_15)as "a3", 
+    to_varchar(X_16)as "a4", 
+    to_varchar(X_17)as "a5", 
+    to_varchar(X_18)as "a6", 
+    to_varchar(X_19)as "a7", 
+    to_varchar(X_20)as "a8", 
+    to_varchar(X_21)as "a9", 
+    to_varchar(X_22)as "a10", 
+    to_varchar(X_23)as "a11", 
+    to_varchar(X_24)as "a12", 
+    to_varchar(X_25)as "a13", 
+    to_varchar(X_26)as "a14", 
+    to_varchar(X_27)as "a15", 
+    to_varchar(X_28)as "a16", 
+    to_varchar(X_29)as "a17", 
+    to_varchar(X_30)as "a18", 
+    to_varchar(X_31)as "a19", 
+    to_varchar(X_32)as "a20", 
+    to_varchar(X_33)as "a21", 
+    to_varchar(X_34)as "a22", 
+    to_varchar(X_35)as "a23", 
+    to_varchar(X_36)as "a24", 
+    to_varchar(X_37)as "a25"
+from
+    pd2023_wk15_easter_dates
+where
+    "X_3" Not Like 'M a r c h'
+    and "X_1" not like 'E a s t e r  D a t e s  1 7 0 0  -  2 2 9 9'
+order by
+    X_2 desc
+limit
+    28
+)
+
+, before_pivot as (
+select *
+from not_extras
+order by 22 desc
+limit 27
+)
+
+, formatted as (SELECT "TO_VARCHAR(X_2)"
+        , case 
+        when Left(COLB, 1) = 'a' then '04'
+        when Left(COLB, 1) = 'm' then '03'
+        end as month
+        , regexp_replace(COLB, '[a-z]', '') day
+        , COLA year
+FROM before_pivot 
+Unpivot include nulls (cola for colb in ("m22","m23", "m24", "m25", "m26", "m27", "m28", "m29", "m30", "m31", 
+                            "a1","a2","a3","a4","a5","a6","a7","a8","a9","a10","a11","a12","a13","a14","a15","a16","a17",
+                            "a18","a19","a20","a21","a22","a23","a24","a25"))
+)
+select to_date(Day||'/'||Month||'/'||Year, 'DD/MM/YYYY') as Easter_Sunday
+from formatted
+where year Not Like '' 
+    and Easter_Sunday between '1700-01-01' and '2023-12-31'
+order by Easter_Sunday asc
+;
