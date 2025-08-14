@@ -1,0 +1,31 @@
+-- PD 2021 Wk2 Output 1
+
+select
+    replace(regexp_replace(model, '[0-9]', ''), '/', '') as Brand,
+    BIKE_TYPE,
+    sum(QUANTITY) as Quantity_Sold,
+    Sum((Quantity * VALUE_PER_BIKE)) as Order_Value,
+    avg(value_per_bike) as Avg_Bike_Value_Sold_per_Brand
+From
+    pd2021_wk02_bike_sales
+Group by
+    (brand, bike_type);
+    
+-- PD 2021 Wk2 Output 2
+
+select
+    replace(regexp_replace(model, '[0-9]', ''), '/', '') as Brand,
+    STORE,
+    Sum((Quantity * VALUE_PER_BIKE)) as Order_Value,
+    sum(QUANTITY) as Quantity_Sold,
+    avg(
+        datediff(
+            day,
+            to_date(order_date, 'dd/mm/yyyy'),
+            to_date(shipping_date, 'dd/mm/yyyy')
+        )
+    ) as Avg_Days_to_Ship
+From
+    pd2021_wk02_bike_sales
+Group by
+    (brand, store);
