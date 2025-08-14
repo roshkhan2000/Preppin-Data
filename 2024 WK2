@@ -1,0 +1,8 @@
+select
+    TRANSACTION_ID,
+    'GB' || check_digits || swift_code || replace(SORT_CODE, '-') || account_number "IBAN"
+from
+    PD2023_WK02_TRANSACTIONS t
+    join pd2023_wk02_swift_codes s on t.bank = s.bank
+limit
+    15;
