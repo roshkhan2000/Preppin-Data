@@ -1,5 +1,3 @@
--- Challenge from here: https://preppindata.blogspot.com/2024/01/2024-week-1-prep-airs-flow-card.html
-
 -- PD 2024 Wk1 Output 1
 
 SELECT
@@ -17,7 +15,7 @@ WHERE FLOW_CARD = 1
 
 ;
 
--- PD 2024 Wk1 Output 1
+-- PD 2024 Wk1 Output 2
 
 SELECT
     TO_DATE(SPLIT_PART(flight_details, '//', 1)) AS "DATE",
