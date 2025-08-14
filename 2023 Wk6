@@ -1,0 +1,72 @@
+With Initial_Pivot as (
+        Select
+            Customer_ID,
+            SPLIT_PART(Category, '___', 1) as Mobile_Or_Online,
+            SPLIT_PART(Category, '___', 2) as Section,
+            Rating
+        From
+            PD2023_WK06_DSB_CUSTOMER_SURVEY Unpivot (
+                Rating for Category in (
+                    MOBILE_APP___EASE_OF_USE,
+                    MOBILE_APP___EASE_OF_ACCESS,
+                    MOBILE_APP___NAVIGATION,
+                    MOBILE_APP___LIKELIHOOD_TO_RECOMMEND,
+                    MOBILE_APP___OVERALL_RATING,
+                    ONLINE_INTERFACE___EASE_OF_USE,
+                    ONLINE_INTERFACE___EASE_OF_ACCESS,
+                    ONLINE_INTERFACE___NAVIGATION,
+                    ONLINE_INTERFACE___LIKELIHOOD_TO_RECOMMEND,
+                    ONLINE_INTERFACE___OVERALL_RATING
+                )
+            )
+        where
+            Section NOT Like 'OVERALL%'
+    ),
+    Aggregated as (
+        Select
+            Customer_ID,
+            Mobile_Or_Online,
+            avg(rating) as Avg_Rating
+        FROM
+            Initial_Pivot
+        group by
+            1,
+            2
+    ),
+    second_pivot as (
+        Select
+            customer_ID,
+            "'MOBILE_APP'" - "'ONLINE_INTERFACE'" as Difference
+        From
+            Aggregated Pivot (
+                max(AVG_RATING) for MOBILE_OR_ONLINE in ('MOBILE_APP', 'ONLINE_INTERFACE')
+            )
+    ),
+    category_count as (
+        select
+            count(customer_ID) as customer_count_by_cat,
+            Case
+                when difference >= 2 then 'Mobile App Superfans'
+                when difference >= 1 then 'Mobile App Fans'
+                when difference < -2 then 'Online Superfans'
+                when difference <= -1 then 'Online Interface Fans'
+                else 'Neutral'
+            end new_preference
+        from
+            second_pivot
+        group by
+            2
+    ),
+    total_customers as (
+        select
+            sum(customer_count_by_cat) as total_customer_count
+        from
+            category_count
+    )
+select
+    new_preference,
+    (CUSTOMER_COUNT_BY_CAT / TOTAL_CUSTOMER_COUNT) * 100 as "% of total"
+from
+    category_count
+    cross join total_customers;
+    
