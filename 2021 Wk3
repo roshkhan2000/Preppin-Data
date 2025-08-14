@@ -1,0 +1,111 @@
+-- PD 2021 Wk3 Output 1
+
+    with "PD2021Wk3Union" as (
+        select
+            *,
+            'Birmingham' as Location
+        from
+            pd2021_wk03_birmingham
+        union
+        select
+            *,
+            'Leeds' as Location
+        from
+            pd2021_wk03_leeds
+        union
+        select
+            *,
+            'London' as Location
+        from
+            pd2021_wk03_london
+        union
+        select
+            *,
+            'Manchester' as Location
+        from
+            pd2021_wk03_manchester
+        union
+        select
+            *,
+            'York' as Location
+        from
+            pd2021_wk03_york
+    )
+Select
+    replace(split_part(Product, '-', 2), '_', '') as "Product",
+    quarter("Date") As "Quarter",
+    sum(quantity) as "Products Sold"
+from
+    "PD2021Wk3Union" unpivot (
+        Quantity for Product IN(
+            "New_-_Mudguards",
+            "New_-_Wheels",
+            "New_-_Saddles",
+            "New_-_Bags",
+            "Existing_-_Saddles",
+            "Existing_-_Mudguards",
+            "Existing_-_Wheels",
+            "Existing_-_Bags"
+        )
+    )
+group by
+    "Product",
+    "Quarter";
+
+-- PD 2021 Wk3 Output 2
+
+    with "PD2021Wk3Union" as (
+        select
+            *,
+            'Birmingham' as Location
+        from
+            pd2021_wk03_birmingham
+        union
+        select
+            *,
+            'Leeds' as Location
+        from
+            pd2021_wk03_leeds
+        union
+        select
+            *,
+            'London' as Location
+        from
+            pd2021_wk03_london
+        union
+        select
+            *,
+            'Manchester' as Location
+        from
+            pd2021_wk03_manchester
+        union
+        select
+            *,
+            'York' as Location
+        from
+            pd2021_wk03_york
+    )
+Select
+    Location,
+    replace(split_part(Product, '-', 1), '_', '') as "Customer Type",
+    replace(split_part(Product, '-', 2), '_', '') as "Product",
+    sum(quantity) as "Quantity"
+from
+    "PD2021Wk3Union" unpivot (
+        Quantity for Product IN(
+            "New_-_Mudguards",
+            "New_-_Wheels",
+            "New_-_Saddles",
+            "New_-_Bags",
+            "Existing_-_Saddles",
+            "Existing_-_Mudguards",
+            "Existing_-_Wheels",
+            "Existing_-_Bags"
+        )
+    )
+group by
+    (
+        replace(split_part(Product, '-', 1), '_', ''),
+        replace(split_part(Product, '-', 2), '_', ''),
+        Location
+    );
