@@ -1,0 +1,18 @@
+select
+    ORDER_ID,
+    CUSTOMER_AGE,
+    BIKE_VALUE,
+    EXISTING_CUSTOMER,
+    split_part(store_bike, '-', 1) as Store,
+    case
+        when split_part(store_bike, '-', 2) ILIKE '%Mount%' then 'Mountain'
+        when split_part(store_bike, '-', 2) ILIKE '%Ro%' then 'Road'
+        when split_part(store_bike, '-', 2) ILIKE '%Grav%' then 'Gravel'
+        else split_part(store_bike, '-', 2)
+    end as "Bike",
+    dayofmonth(date) as "Day of Month",
+    Quarter(date) as "Quarter"
+from
+    pd2021_wk01
+limit
+    1000 offset 10;
