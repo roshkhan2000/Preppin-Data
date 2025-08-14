@@ -1,0 +1,32 @@
+ With "Targets" as (
+        Select
+            ONLINE_OR_IN_PERSON,
+            to_number(Replace(Quarter, 'Q', '')) as Quarter,
+            Quarterly_Target
+        From
+            pd2023_wk03_targets Unpivot (Quarterly_Target for Quarter in (Q1, Q2, Q3, Q4))
+    )
+select
+    case
+        tr.online_or_in_person
+        when '1' then 'Online'
+        when '2' then 'In-Person'
+    end Code,
+    quarter(
+        to_date(
+            split_part(transaction_date, ' ', 1),
+            'dd/mm/yyyy'
+        )
+    ) as Transaction_Quarter,
+    sum(Value),
+    Round(avg(Quarterly_Target)),
+    round(sum(Value) - avg(Quarterly_Target)) as Variance_To_Target
+from
+    PD2023_WK01 tr
+    join "Targets" ta on code LIKE ta.online_or_in_person
+    AND transaction_quarter = Quarter
+where
+    left(transaction_code, 3) LIKE 'DSB'
+group by
+    1,
+    2;
