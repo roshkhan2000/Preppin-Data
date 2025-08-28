@@ -1,0 +1,79 @@
+WITH pd2021wk3union AS (
+    SELECT
+        *,
+        'Birmingham' AS location
+    FROM
+        pd2021_wk03_birmingham
+    UNION
+    SELECT
+        *,
+        'Leeds' AS location
+    FROM
+        pd2021_wk03_leeds
+    UNION
+    SELECT
+        *,
+        'London' AS location
+    FROM
+        pd2021_wk03_london
+    UNION
+    SELECT
+        *,
+        'Manchester' AS location
+    FROM
+        pd2021_wk03_manchester
+    UNION
+    SELECT
+        *,
+        'York' AS location
+    FROM
+        pd2021_wk03_york)
+        
+, pd2021wk3unpivot AS (
+    SELECT
+        "Date" AS order_date,
+        QUARTER("Date") AS Q,
+        location,
+        SPLIT_PART(product, '_-_', 2) AS product_clean,
+        quantity, 
+        SUM(quantity) OVER (PARTITION BY Location, QUARTER("Date") ORDER BY quantity DESC ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS products_sold
+    FROM
+        pd2021wk3union
+    UNPIVOT (
+        quantity FOR product IN (
+        "New_-_Saddles",
+        "New_-_Mudguards",
+        "New_-_Wheels",
+        "New_-_Bags",
+        "Existing_-_Saddles",
+        "Existing_-_Mudguards",
+        "Existing_-_Wheels",
+        "Existing_-_Bags"))) 
+
+, pd2021wk3ready AS (
+    SELECT 
+        Q AS qtr,
+        Location AS store,
+        SUM(quantity) AS sold_products,
+        MIN(tr."Target") AS target,
+        SUM(quantity) - MIN(tr."Target") AS variance_to_target
+    FROM
+        pd2021wk3unpivot AS u
+    LEFT JOIN
+        PD2021_WK04_TARGETS AS tr
+    ON
+        u.Q = tr."Quarter"
+        AND
+        u.Location = tr."Store" 
+    GROUP BY
+        1,
+        2) 
+SELECT
+    qtr,
+    ROW_NUMBER() OVER(PARTITION BY qtr ORDER BY variance_to_target DESC) AS rnk,
+    store,
+    sold_products,
+    target,
+    variance_to_target
+FROM 
+    pd2021wk3ready
