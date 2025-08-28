@@ -1,0 +1,26 @@
+Select CASE
+        WHEN "Date of Birth" BETWEEN '2011-09-01' AND DateAdd(day,-1,'2012-09-01') THEN '4'
+        WHEN "Date of Birth" BETWEEN '2012-09-01' AND DateAdd(day,-1,'2013-09-01') THEN '3'
+        WHEN "Date of Birth" BETWEEN '2013-09-01' AND DateAdd(day,-1,'2014-09-01') THEN '2'
+        WHEN "Date of Birth" BETWEEN '2014-09-01' AND DateAdd(day,-1,'2015-09-01') THEN '1'
+        ELSE '0'
+    END AS "Year"
+    ,"pupil last name"|| ', ' ||"pupil first name" as "Pupils Name" 
+    , CASE
+      WHEN "Parental Contact" = 1
+        THEN "pupil last name"|| ', ' ||"Parental Contact Name_1"
+        ELSE "pupil last name"|| ', ' ||"Parental Contact Name_2"
+        END AS "Parental Contact Full Name"
+    , CASE 
+        WHEN "Parental Contact" = 1  
+            THEN "pupil last name"|| '.' ||"Parental Contact Name_1" || '@' || "Preferred Contact Employer" || '.com'
+            ELSE 
+            "pupil last name"|| '.' ||"Parental Contact Name_2" || '@' || "Preferred Contact Employer" || '.com'
+        END As "Parental Contact Email Address"
+
+From PD2022_WK01 
+LIMIT 50
+;
+
+SELECT * 
+FROMPD2022_WK01
