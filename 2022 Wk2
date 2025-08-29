@@ -1,0 +1,17 @@
+WITH formatted AS (
+    SELECT
+        "pupil first name" || ' ' || "pupil last name" AS pupil_name,
+        "Date of Birth" AS DOB,
+         CAST(CAST(YEAR(CURRENT_DATE) AS VARCHAR) || '-' || CAST(MONTH("Date of Birth") AS VARCHAR) || '-' || CAST(DAY("Date of Birth") AS VARCHAR) AS DATE) AS this_years_birthday
+    FROM
+        PD2022_WK01)
+
+SELECT
+    pupil_name,
+    DOB,
+    this_years_birthday,
+    TO_CHAR(this_years_birthday, 'dy') AS cake_needed_on,
+    TO_CHAR(this_years_birthday, 'mon'),
+    COUNT(this_years_birthday) OVER(PARTITION BY TO_CHAR(this_years_birthday, 'dy'),TO_CHAR(this_years_birthday, 'mon') ORDER BY this_years_birthday ASC ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS bds_per_weekday_and_month
+FROM
+    formatted
