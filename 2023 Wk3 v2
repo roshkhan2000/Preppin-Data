@@ -1,0 +1,44 @@
+WITH pre_agg AS (
+        SELECT
+        o."gender",
+        t.*
+    FROM
+        PD2022_Wk03 AS t
+    UNPIVOT (
+        score FOR subject IN (
+        "Maths", 
+        "English",
+        "Spanish",
+        "Science",
+        "Art",
+        "History",
+        "Geography"
+        )
+    )
+    LEFT JOIN
+        PD2022_Wk01 AS o
+    ON 
+        o."id" = t."Student ID")
+, averages AS (
+    SELECT
+        "gender",
+        "Student ID",
+        score,
+        CASE 
+            WHEN score > 75 THEN 1
+            ELSE 0
+        END AS pass
+    FROM
+        pre_agg)
+SELECT
+    "gender",
+    "Student ID",
+    SUM(pass) AS passed_subjects,
+    ROUND(AVG(score), 1) AS average_score
+FROM
+    averages
+GROUP BY
+    "gender",
+    "Student ID"
+ORDER BY
+    "Student ID"
