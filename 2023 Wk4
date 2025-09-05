@@ -1,0 +1,53 @@
+WITH pd2023 AS (
+    SELECT *, '1' AS joining_month FROM pd2023_wk04_january
+    UNION ALL
+    SELECT *, '2' AS joining_month FROM pd2023_wk04_february
+    UNION ALL
+    SELECT *, '3' AS joining_month FROM pd2023_wk04_march
+    UNION ALL
+    SELECT *, '4' AS joining_month  FROM pd2023_wk04_april
+    UNION ALL
+    SELECT *, '5' AS joining_month FROM pd2023_wk04_may
+    UNION ALL
+    SELECT *, '6' AS joining_month FROM pd2023_wk04_june
+    UNION ALL
+    SELECT *, '7' AS joining_month FROM pd2023_wk04_july
+    UNION ALL
+    SELECT *, '8' AS joining_month FROM pd2023_wk04_august
+    UNION ALL
+    SELECT *, '9' AS joining_month FROM pd2023_wk04_september
+    UNION ALL
+    SELECT *, '10' AS joining_month FROM pd2023_wk04_october
+    UNION ALL
+    SELECT *, '11' AS joining_month FROM pd2023_wk04_november
+    UNION ALL
+    SELECT *, '12' AS joining_month FROM pd2023_wk04_december
+)
+
+, pd2023_pivoted AS (
+    SELECT
+        id,
+        CAST('2025' || '-' || joining_month || '-' || joining_day AS DATE) AS joining_date,
+        Ethnicity,
+        account_type,
+        TO_DATE(dob, 'MM/dd/yyyy') as date_of_birth, 
+        ROW_NUMBER() OVER(PARTITION BY ID ORDER BY CAST('2025' || '-' || joining_month || '-' || joining_day AS DATE)) as row_num
+    FROM
+        pd2023
+    PIVOT (
+        MIN(Value) FOR Demographic IN (
+              'Ethnicity',
+              'Account Type',
+              'Date of Birth'
+        ) ) AS pd2023_pivoted (id, joining_month, joining_day, ethnicity, account_type, dob)
+) 
+SELECT
+    id,
+    joining_date,
+    account_type,
+    date_of_birth,
+    ethnicity
+FROM
+    pd2023_pivoted
+WHERE
+    row_num != 0
