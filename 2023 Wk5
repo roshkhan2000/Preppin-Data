@@ -1,0 +1,32 @@
+WITH agg_transactions AS (
+    SELECT
+        MONTH(TO_TIMESTAMP(transaction_date,'DD/MM/YYYY HH:MI:SS')) AS trans_date,
+        SPLIT_PART(transaction_code, '-', 1) AS bank,
+        SUM(value) AS total_value
+    FROM
+        pd2023_wk01
+    GROUP BY 
+        1,
+        2
+)
+, rnk_transactions AS (
+    SELECT
+        trans_date,
+        bank,
+        ROW_NUMBER() OVER(PARTITION BY trans_date ORDER BY total_value DESC) AS bank_rank_per_month,
+        total_value
+    FROM
+        agg_transactions
+)
+SELECT
+    trans_date,
+    bank,
+    total_value,
+    bank_rank_per_month,
+    AVG(total_value) OVER(PARTITION BY bank_rank_per_month) AS avg_transaction_value_per_rank,
+    AVG(bank_rank_per_month) OVER(PARTITION BY bank) AS avg_rank_per_bank
+FROM
+    rnk_transactions
+ORDER BY
+    trans_date ASC,
+    bank_rank_per_month ASC
